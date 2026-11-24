@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { ATTACK_SCENARIOS, OPENROUTER_DEFENDER_MODELS, POLICY_PRESETS } from "../packages/shared/src/index";
 import { buildSkillMarkdown } from "../apps/api/src/agent-rooms";
 
@@ -7,7 +8,84 @@ const ROOT = process.cwd();
 const WEB_DIR = path.join(ROOT, "apps", "web");
 const SITE_PUBLIC = path.join(ROOT, "site", "public");
 
-const ASSET_VERSION = Date.now().toString(36);
+export const GITHUB_SLUG = "NickCertina/Elenchi";
+export const GITHUB_URL = `https://github.com/${GITHUB_SLUG}`;
+export const TWITTER_HANDLE = "@Elenchi_rbh";
+export const TWITTER_URL = "https://x.com/Elenchi_rbh";
+export const TOKEN_SYMBOL = "ELCHI";
+export const TOKEN_TICKER = "$ELCHI";
+
+export interface TokenReleaseConfig {
+  state: "PRELAUNCH" | "LIVE";
+  ca: string | null;
+  ponsUrl: string | null;
+  launchTx: string | null;
+  ponsFactory: string | null;
+  ponsVersion: "MAIN_POOL" | "V2_CURVE" | null;
+  symbol: string | null;
+  totalSupplyFormatted: string | null;
+}
+
+export const PRELAUNCH_TOKEN_CONFIG: TokenReleaseConfig = {
+  state: "PRELAUNCH",
+  ca: null,
+  ponsUrl: null,
+  launchTx: null,
+  ponsFactory: null,
+  ponsVersion: null,
+  symbol: TOKEN_SYMBOL,
+  totalSupplyFormatted: null,
+};
+
+export function readTokenReleaseConfig(rootDir = process.cwd()): TokenReleaseConfig {
+  const cfgPath = path.join(rootDir, "config", "token.json");
+  if (!fs.existsSync(cfgPath)) return { ...PRELAUNCH_TOKEN_CONFIG };
+  try {
+    const raw = JSON.parse(fs.readFileSync(cfgPath, "utf-8")) as Partial<TokenReleaseConfig>;
+    const ca = typeof raw.ca === "string" && /^0x[a-fA-F0-9]{40}$/.test(raw.ca.trim()) ? raw.ca.trim() : null;
+    const state = raw.state === "LIVE" && ca ? "LIVE" : "PRELAUNCH";
+    return {
+      state,
+      ca: state === "LIVE" ? ca : null,
+      ponsUrl: state === "LIVE" && ca ? `https://ponsfamily.com/launchpad/${ca}` : null,
+      launchTx: typeof raw.launchTx === "string" && raw.launchTx.startsWith("0x") ? raw.launchTx : null,
+      ponsFactory: typeof raw.ponsFactory === "string" && raw.ponsFactory.startsWith("0x") ? raw.ponsFactory : null,
+      ponsVersion: raw.ponsVersion === "MAIN_POOL" || raw.ponsVersion === "V2_CURVE" ? raw.ponsVersion : null,
+      symbol: typeof raw.symbol === "string" && raw.symbol ? raw.symbol : TOKEN_SYMBOL,
+      totalSupplyFormatted: typeof raw.totalSupplyFormatted === "string" ? raw.totalSupplyFormatted : null,
+    };
+  } catch {
+    return { ...PRELAUNCH_TOKEN_CONFIG };
+  }
+}
+
+export function renderClientConfigJs(tokenCfg: TokenReleaseConfig): string {
+  const isLive = tokenCfg.state === "LIVE" && Boolean(tokenCfg.ca);
+  const caLiteral = isLive ? JSON.stringify(tokenCfg.ca) : "null";
+  const ponsLiteral = isLive ? JSON.stringify(`https://ponsfamily.com/launchpad/${tokenCfg.ca}`) : "null";
+  const txLiteral = isLive && tokenCfg.launchTx ? JSON.stringify(tokenCfg.launchTx) : "null";
+  return `/**
+ * Elenchi Public Client Config
+ * NON-NEGOTIABLE: Until the project owner manually launches $ELCHI on Pons
+ * and verifies on-chain provenance via \`npm run bind:token\`, \`contract\` MUST remain null.
+ */
+window.ELENCHI_CONFIG = {
+  brand: "ELENCHI",
+  ticker: "$ELCHI",
+  chainId: 4663,
+  testnetChainId: 46630,
+  explorerUrl: "https://robinhoodchain.blockscout.com",
+  testnetExplorerUrl: "https://explorer.testnet.chain.robinhood.com",
+  tokenLaunchState: ${JSON.stringify(isLive ? "LIVE" : "PRELAUNCH")},
+  contract: ${caLiteral},
+  CA: ${caLiteral},
+  ponsLaunchpadUrl: ${ponsLiteral},
+  launchTx: ${txLiteral},
+  twitterUrl: ${JSON.stringify(TWITTER_URL)},
+  githubUrl: ${JSON.stringify(GITHUB_URL)},
+};
+`;
+}
 
 type ActiveNav = "home" | "arena" | "run" | "protocol" | "token" | "docs" | "privacy";
 
@@ -40,6 +118,15 @@ function presetChips(p: (typeof POLICY_PRESETS)[number]): string[] {
   ];
 }
 
+export function renderSiteArtifacts(
+  tokenCfg: TokenReleaseConfig = readTokenReleaseConfig(),
+  ASSET_VERSION = Date.now().toString(36)
+): { pages: Record<string, string>; configJs: string } {
+  const isLive = Boolean(tokenCfg.state === "LIVE" && tokenCfg.ca && /^0x[a-fA-F0-9]{40}$/.test(tokenCfg.ca));
+  const ca = isLive ? tokenCfg.ca! : "";
+  const ponsHref = isLive ? `https://ponsfamily.com/launchpad/${ca}` : "/token";
+  const blockscoutHref = isLive ? `https://robinhoodchain.blockscout.com/token/${ca}` : "https://robinhoodchain.blockscout.com";
+
 function pageShell(params: {
   title: string;
   description: string;
@@ -48,6 +135,12 @@ function pageShell(params: {
 }): string {
   const navItem = (href: string, label: string, key: ActiveNav) =>
     `<a href="${href}"${params.active === key ? ' aria-current="page"' : ""}>${label}</a>`;
+  const headerButtons = isLive
+    ? `<a href="${ponsHref}" target="_blank" rel="noopener" class="btn btn-sm btn-pons">Buy on Pons</a>\n        <a href="/arena" class="btn btn-sm btn-ghost">Open Arena</a>`
+    : `<a href="/arena" class="btn btn-sm">Open Arena</a>`;
+  const footerBuyLink = isLive
+    ? `\n          <a href="${ponsHref}" target="_blank" rel="noopener">Buy on Pons</a>`
+    : "";
 
   return `<!doctype html>
 <html lang="en">
@@ -61,7 +154,7 @@ function pageShell(params: {
   <meta property="og:description" content="${esc(params.description)}">
   <meta property="og:image" content="/assets/img/og.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:site" content="@Elenchi_dev">
+  <meta name="twitter:site" content="${TWITTER_HANDLE}">
   <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg">
   <link rel="preload" href="/assets/fonts/InterDisplay-Regular.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="stylesheet" href="/assets/css/elenchi.css?v=${ASSET_VERSION}">
@@ -88,14 +181,14 @@ function pageShell(params: {
           <span id="nav-chain-label">4663 · connecting</span>
         </div>
         <div class="header-socials" aria-label="Official links">
-          <a href="https://x.com/Elenchi_dev" target="_blank" rel="noopener" aria-label="Elenchi on X (@Elenchi_dev)" title="@Elenchi_dev on X">
+          <a href="${TWITTER_URL}" target="_blank" rel="noopener" aria-label="Elenchi on X (${TWITTER_HANDLE})" title="${TWITTER_HANDLE} on X">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           </a>
-          <a href="https://github.com/AdrianVoss/Elenchi" target="_blank" rel="noopener" aria-label="Elenchi GitHub (AdrianVoss/Elenchi)" title="github.com/AdrianVoss/Elenchi">
+          <a href="${GITHUB_URL}" target="_blank" rel="noopener" aria-label="Elenchi GitHub (${GITHUB_SLUG})" title="github.com/${GITHUB_SLUG}">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.649.5.5 5.649.5 12c0 5.084 3.292 9.392 7.86 10.913.575.107.785-.25.785-.555 0-.274-.01-1-.016-1.963-3.197.695-3.872-1.54-3.872-1.54-.523-1.328-1.277-1.682-1.277-1.682-1.044-.714.079-.699.079-.699 1.155.081 1.763 1.186 1.763 1.186 1.026 1.758 2.692 1.25 3.349.956.104-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.28 1.184-3.084-.119-.29-.513-1.46.112-3.044 0 0 .966-.309 3.166 1.18a10.98 10.98 0 0 1 5.766 0c2.198-1.489 3.163-1.18 3.163-1.18.627 1.584.233 2.754.114 3.044.738.804 1.183 1.83 1.183 3.084 0 4.415-2.688 5.387-5.249 5.671.413.356.78 1.057.78 2.131 0 1.539-.014 2.78-.014 3.158 0 .308.207.667.792.554C20.211 21.388 23.5 17.082 23.5 12 23.5 5.649 18.351.5 12 .5z"/></svg>
           </a>
         </div>
-        <a href="/arena" class="btn btn-sm">Open Arena</a>
+        ${headerButtons}
       </div>
     </div>
   </header>
@@ -114,13 +207,13 @@ ${params.bodyHtml}
         <nav aria-label="Footer">
           <a href="/arena">Arena</a>
           <a href="/protocol">Protocol</a>
-          <a href="/token">Token</a>
+          <a href="/token">Token</a>${footerBuyLink}
           <a href="/docs">Docs</a>
           <a href="/privacy">Privacy</a>
           <a href="/skill.md">skill.md</a>
           <a href="/api/openapi.json">OpenAPI</a>
-          <a href="https://x.com/Elenchi_dev" target="_blank" rel="noopener">X · @Elenchi_dev</a>
-          <a href="https://github.com/AdrianVoss/Elenchi" target="_blank" rel="noopener">GitHub</a>
+          <a href="${TWITTER_URL}" target="_blank" rel="noopener">X · ${TWITTER_HANDLE}</a>
+          <a href="${GITHUB_URL}" target="_blank" rel="noopener">GitHub</a>
         </nav>
       </div>
       <div class="footer-word" aria-hidden="true">elenchi</div>
@@ -190,8 +283,44 @@ const INDEX_HTML = pageShell({
         </p>
         <div class="hero-actions" data-reveal style="--i:7">
           <a href="/arena" class="btn btn-lg">Open the Arena <span class="arr">→</span></a>
+          ${
+            isLive
+              ? `<!-- AUTHORITATIVE HERO PONS CTA (VERIFIED LIVE) -->
+          <a href="${ponsHref}" target="_blank" rel="noopener" class="btn btn-lg btn-pons" id="hero-pons-btn" data-pons-cta data-token-state="LIVE">Buy on Pons <span class="arr">↗</span></a>
+          <!-- END AUTHORITATIVE HERO PONS CTA -->`
+              : `<!-- AUTHORITATIVE HERO PONS CTA (PRELAUNCH STATE: NO CONTRACT DEPLOYED YET) -->
+          <a href="/token" class="btn btn-lg btn-pons is-prelaunch" id="hero-pons-btn" data-pons-cta data-token-state="PRELAUNCH">Buy on Pons · Prelaunch</a>
+          <!-- END AUTHORITATIVE HERO PONS CTA -->`
+          }
           <a href="#how" class="text-link">How it works</a>
         </div>
+        ${
+          isLive
+            ? `<!-- AUTHORITATIVE HERO TOKEN SLOT (VERIFIED LIVE) -->
+        <div class="hero-ca-bar is-live" id="hero-token-slot" data-token-state="LIVE" data-reveal style="--i:8">
+          <div class="hero-ca-info">
+            <span class="hero-ca-k"><span class="chain-dot live"></span>$ELCHI OFFICIAL CONTRACT · ROBINHOOD CHAIN (4663)</span>
+            <span class="hero-ca-v mono" data-ca-value>${ca}</span>
+          </div>
+          <div class="hero-ca-actions">
+            <button type="button" class="btn btn-ghost btn-sm" data-copy-ca="true" data-ca="${ca}">Copy CA</button>
+            <a href="${ponsHref}" target="_blank" rel="noopener" class="btn btn-sm btn-pons">Buy on Pons</a>
+            <a href="${blockscoutHref}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">Blockscout</a>
+          </div>
+        </div>
+        <!-- END AUTHORITATIVE HERO TOKEN SLOT -->`
+            : `<!-- AUTHORITATIVE HERO TOKEN SLOT (PRELAUNCH STATE: NO CONTRACT DEPLOYED YET) -->
+        <div class="hero-ca-bar" id="hero-token-slot" data-token-state="PRELAUNCH" data-reveal style="--i:8">
+          <div class="hero-ca-info">
+            <span class="hero-ca-k"><span class="chain-dot"></span>$ELCHI · ROBINHOOD CHAIN (4663)</span>
+            <span class="hero-ca-v mono" data-ca-value>PRELAUNCH · Manual launch on ponsfamily.com · ELENCHI_TOKEN_ADDRESS = null</span>
+          </div>
+          <div class="hero-ca-actions">
+            <a href="/token" class="btn btn-ghost btn-sm">Token status</a>
+          </div>
+        </div>
+        <!-- END AUTHORITATIVE HERO TOKEN SLOT -->`
+        }
       </div>
       <div class="hero-meta" data-stagger>
         <div><span class="k">Network</span><span class="v">Robinhood Chain · 4663</span></div>
@@ -369,13 +498,27 @@ const INDEX_HTML = pageShell({
           <p id="net-arena">Checking deployment status…</p>
         </div>
         <div class="tile tile-6 spot">
-          <span class="tile-k">$ELENCHI</span>
-          <!-- AUTHORITATIVE TOKEN SLOT (PRELAUNCH STATE: NO CONTRACT DEPLOYED YET) -->
+          <span class="tile-k">$ELCHI</span>
+          ${
+            isLive
+              ? `<!-- AUTHORITATIVE TOKEN SLOT (VERIFIED LIVE) -->
+          <div id="elenchi-token-slot" data-token-state="LIVE" style="margin-top:auto">
+            <h3>Live on Pons</h3>
+            <p class="mono" style="margin:8px 0 14px;font-size:13px;word-break:break-all;color:var(--off-white)">${ca}</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button type="button" class="btn btn-ghost btn-sm" data-copy-ca="true" data-ca="${ca}">Copy CA</button>
+              <a href="${ponsHref}" target="_blank" rel="noopener" class="btn btn-sm btn-pons">Buy on Pons</a>
+              <a href="${blockscoutHref}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">Blockscout</a>
+            </div>
+          </div>
+          <!-- END AUTHORITATIVE TOKEN SLOT -->`
+              : `<!-- AUTHORITATIVE TOKEN SLOT (PRELAUNCH STATE: NO CONTRACT DEPLOYED YET) -->
           <div id="elenchi-token-slot" data-token-state="PRELAUNCH" style="margin-top:auto">
             <h3>Prelaunch</h3>
-            <p>No token contract exists yet (<code>ELENCHI_TOKEN_ADDRESS = null</code>). $ELENCHI will be launched manually by the project owner on the official Pons website. Beware lookalikes.</p>
+            <p>No token contract exists yet (<code>ELENCHI_TOKEN_ADDRESS = null</code>). $ELCHI will be launched manually by the project owner on the official Pons website. Beware lookalikes.</p>
           </div>
-          <!-- END AUTHORITATIVE TOKEN SLOT -->
+          <!-- END AUTHORITATIVE TOKEN SLOT -->`
+          }
           <a href="/token" class="text-link" style="margin-top:18px;align-self:flex-start">Token &amp; fee disclosures</a>
         </div>
       </div>
@@ -388,8 +531,12 @@ const INDEX_HTML = pageShell({
     <div class="shell">
       <p class="eyebrow">Free sandbox</p>
       <h2 class="display" data-reveal>Break it here,<br>not on-chain.</h2>
-      <div style="margin-top:44px" data-reveal>
-        <a href="/arena" class="btn btn-lg">Open the Arena <span class="arr">→</span></a>
+      <div style="margin-top:44px;display:flex;flex-wrap:wrap;gap:18px" data-reveal>
+        <a href="/arena" class="btn btn-lg">Open the Arena <span class="arr">→</span></a>${
+          isLive
+            ? `\n        <a href="${ponsHref}" target="_blank" rel="noopener" class="btn btn-lg btn-pons">Buy on Pons <span class="arr">↗</span></a>`
+            : ""
+        }
       </div>
     </div>
   </section>
@@ -844,23 +991,51 @@ SimulatedAction(
 
 // ─────────────────────────────── TOKEN ───────────────────────────────
 
+const tokenSupplyLine = [
+  tokenCfg.launchTx ? `Creation Tx: <code>${esc(tokenCfg.launchTx)}</code>` : null,
+  tokenCfg.totalSupplyFormatted
+    ? `Supply: ${esc(tokenCfg.totalSupplyFormatted)} ${esc(tokenCfg.symbol || TOKEN_SYMBOL)}`
+    : null,
+]
+  .filter(Boolean)
+  .join(" · ");
+
 const TOKEN_HTML = pageShell({
-  title: "$ELENCHI token — ELENCHI",
+  title: isLive ? "$ELCHI token — Live on Pons · ELENCHI" : "$ELCHI token — ELENCHI",
   description:
-    "Prelaunch status, the manual Pons launch checklist, post-launch provenance verification, and strict fee separation.",
+    "Official $ELCHI contract status on Robinhood Chain (4663), manual Pons launch provenance, and strict fee separation.",
   active: "token",
   bodyHtml: `
   ${pageHero({
     atmo: "atmo-protocol",
     eyebrow: "Robinhood Chain · 4663 · token identity",
-    title: "$ELENCHI<br>is not launched yet.",
-    lead: "When it launches, it will be launched manually by the project owner on the official Pons website — and the verified contract will appear here.",
-    extra: `
+    title: isLive ? "$ELCHI<br>is live on Pons." : "$ELCHI<br>is not launched yet.",
+    lead: isLive
+      ? "Official $ELCHI contract on Robinhood Chain (chainId 4663), launched manually on the official Pons website and verified on-chain."
+      : "When it launches, it will be launched manually by the project owner on the official Pons website — and the verified contract will appear here.",
+    extra: isLive
+      ? `
+      <!-- AUTHORITATIVE TOKEN SLOT (VERIFIED LIVE) -->
+      <div class="truth-strip" id="elenchi-token-page-slot" data-token-state="LIVE" style="margin-top:40px" data-reveal>
+        <div>
+          <div class="micro" style="color:var(--ice-blue)">VERIFIED PONS CONTRACT · ROBINHOOD CHAIN (4663)</div>
+          <div class="mono" style="margin-top:6px;font-size:15px;word-break:break-all;color:var(--off-white)">${ca}</div>${
+          tokenSupplyLine ? `\n          <div class="micro" style="margin-top:6px">${tokenSupplyLine}</div>` : ""
+        }
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button type="button" class="btn btn-ghost btn-sm" data-copy-ca="true" data-ca="${ca}">Copy CA</button>
+          <a href="${ponsHref}" target="_blank" rel="noopener" class="btn btn-sm btn-pons">Buy on Pons</a>
+          <a href="${blockscoutHref}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">Blockscout</a>
+        </div>
+      </div>
+      <!-- END AUTHORITATIVE TOKEN SLOT -->`
+      : `
       <!-- AUTHORITATIVE TOKEN SLOT (PRELAUNCH STATE: NO CONTRACT DEPLOYED YET) -->
       <div class="truth-strip" id="elenchi-token-page-slot" data-token-state="PRELAUNCH" style="margin-top:40px" data-reveal>
         <div>
           <div class="micro" style="color:var(--ice-blue)">TOKEN_LAUNCH_STATE = PRELAUNCH · ELENCHI_TOKEN_ADDRESS = null</div>
-          <div style="margin-top:6px">No $ELENCHI contract exists yet. Beware lookalike tokens. Elenchi never deploys an ERC-20, mints tokens, or operates a launchpad.</div>
+          <div style="margin-top:6px">No $ELCHI contract exists yet. Beware lookalike tokens. Elenchi never deploys an ERC-20, mints tokens, or operates a launchpad.</div>
         </div>
       </div>
       <!-- END AUTHORITATIVE TOKEN SLOT -->`,
@@ -896,7 +1071,7 @@ const TOKEN_HTML = pageShell({
         <div class="tile tile-6 spot">
           <span class="tile-k"><span class="chain-dot live"></span>Active now</span>
           <h3>Free Sandbox</h3>
-          <p>0 $ELENCHI. Up to 3 adaptive rounds, all 5 attack vectors, clean benchmark, report export.</p>
+          <p>0 $ELCHI. Up to 3 adaptive rounds, all 5 attack vectors, clean benchmark, report export.</p>
         </div>
         <div class="tile tile-6 spot">
           <span class="tile-k">Coming soon · 250,000 (0.025%)</span>
@@ -922,10 +1097,10 @@ const TOKEN_HTML = pageShell({
       <p class="eyebrow">03 / Owner launch checklist · never automated</p>
       <div class="prose-list" data-stagger style="margin-top:28px">
         <div class="prose-item"><span class="n">01</span><div><h3>Verify domain and network</h3><p>Open https://ponsfamily.com/ directly and confirm the wallet is on chain 4663.</p></div></div>
-        <div class="prose-item"><span class="n">02</span><div><h3>Confirm metadata</h3><p>Name “Elenchi”, ticker “ELENCHI”, the split-e avatar, https://elenchi.dev, X <a class="text-link" href="https://x.com/Elenchi_dev" target="_blank" rel="noopener">@Elenchi_dev</a> and GitHub <a class="text-link" href="https://github.com/AdrianVoss/Elenchi" target="_blank" rel="noopener">AdrianVoss/Elenchi</a>.</p></div></div>
+        <div class="prose-item"><span class="n">02</span><div><h3>Confirm metadata</h3><p>Name “Elenchi”, ticker “ELCHI”, the split-e avatar, https://elenchi.dev, X <a class="text-link" href="${TWITTER_URL}" target="_blank" rel="noopener">${TWITTER_HANDLE}</a> and GitHub <a class="text-link" href="${GITHUB_URL}" target="_blank" rel="noopener">${GITHUB_SLUG}</a>.</p></div></div>
         <div class="prose-item"><span class="n">03</span><div><h3>Inspect launch parameters before signing</h3><p>Pons version (main pool vs. V2 curve), quote asset, creator-fee recipient and the exact creator tax. These are irreversible.</p></div></div>
         <div class="prose-item"><span class="n">04</span><div><h3>Record provenance</h3><p>Creation transaction hash, token contract address and factory address.</p></div></div>
-        <div class="prose-item"><span class="n">05</span><div><h3>Bind and verify</h3><p><code>npm run bind:token -- --token 0x… --tx 0x… --factory 0x… --version V2_CURVE</code> verifies the receipt on chain 4663 before writing the CA into this site.</p></div></div>
+        <div class="prose-item"><span class="n">05</span><div><h3>Bind and verify</h3><p><code>npm run release:token -- 0x…</code> (or <code>npm run bind:token -- --token 0x… --tx 0x… --factory 0x…</code>) verifies on-chain bytecode and metadata on chain 4663 before writing the CA into raw HTML and deploying.</p></div></div>
       </div>
     </div>
   </section>
@@ -951,7 +1126,7 @@ const DOCS_HTML = pageShell({
       <div style="grid-column:span 5" data-reveal>
         <p class="eyebrow">01 / Quickstart</p>
         <h2 class="section-title" style="font-size:clamp(28px,3vw,44px)">Run it locally</h2>
-        <p class="lead" style="font-size:16px">Set <code>AI_API_KEY</code> in <code>.env.local</code> for live OpenRouter/OpenAI rounds, or deploy with the Cloudflare Workers AI binding. Source repository: <a class="text-link" href="https://github.com/AdrianVoss/Elenchi" target="_blank" rel="noopener">github.com/AdrianVoss/Elenchi</a> · Updates: <a class="text-link" href="https://x.com/Elenchi_dev" target="_blank" rel="noopener">@Elenchi_dev</a>.</p>
+        <p class="lead" style="font-size:16px">Set <code>AI_API_KEY</code> in <code>.env.local</code> for live OpenRouter/OpenAI rounds, or deploy with the Cloudflare Workers AI binding. Source repository: <a class="text-link" href="${GITHUB_URL}" target="_blank" rel="noopener">github.com/${GITHUB_SLUG}</a> · Updates: <a class="text-link" href="${TWITTER_URL}" target="_blank" rel="noopener">${TWITTER_HANDLE}</a>.</p>
       </div>
       <div style="grid-column:7 / span 6" data-reveal>
         <pre class="code-box" style="margin:0"># Policy, EIP-712, EVM contract and API tests
@@ -1078,13 +1253,6 @@ const PRIVACY_HTML = pageShell({
 `,
 });
 
-function copyFileIfExists(src: string, dest: string) {
-  if (!fs.existsSync(src)) return;
-  fs.mkdirSync(path.dirname(dest), { recursive: true });
-  fs.copyFileSync(src, dest);
-}
-
-function buildAll() {
   const pages: Record<string, string> = {
     "index.html": INDEX_HTML,
     "arena.html": ARENA_HTML,
@@ -1094,6 +1262,24 @@ function buildAll() {
     "docs.html": DOCS_HTML,
     "privacy.html": PRIVACY_HTML,
   };
+
+  return {
+    pages,
+    configJs: renderClientConfigJs(tokenCfg),
+  };
+}
+
+function copyFileIfExists(src: string, dest: string) {
+  if (!fs.existsSync(src)) return;
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.copyFileSync(src, dest);
+}
+
+export function buildAll(tokenCfg: TokenReleaseConfig = readTokenReleaseConfig()) {
+  const { pages, configJs } = renderSiteArtifacts(tokenCfg);
+
+  fs.mkdirSync(path.join(WEB_DIR, "assets", "js"), { recursive: true });
+  fs.writeFileSync(path.join(WEB_DIR, "assets", "js", "config.js"), configJs, "utf-8");
 
   const targets = fs.existsSync(path.join(ROOT, "site")) ? [WEB_DIR, SITE_PUBLIC] : [WEB_DIR];
 
@@ -1130,7 +1316,15 @@ function buildAll() {
     }
   }
 
-  console.log(`Built 7 pages + motion layer + brand assets (${targets.length} target(s)).`);
+  console.log(
+    `Built 7 pages + config.js [${tokenCfg.state}${tokenCfg.ca ? ` · ${tokenCfg.ca}` : ""}] (${targets.length} target(s)).`
+  );
 }
 
-buildAll();
+const isMainModule =
+  Boolean(process.argv[1]) &&
+  path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));
+
+if (isMainModule) {
+  buildAll();
+}

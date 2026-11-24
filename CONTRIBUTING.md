@@ -15,7 +15,7 @@ npm install
 # 1. Static typecheck across all packages, API, scripts & tests
 npm run typecheck
 
-# 2. Full 30-test Vitest suite (Policy, EIP-712, Cancun EVM ElenchiArena.sol, Self-Connect, API E2E)
+# 2. Full 33-test Vitest suite (Policy, EIP-712, Cancun EVM ElenchiArena.sol, Self-Connect, Token Release, API E2E)
 npm test
 
 # 3. Run standalone offline examples

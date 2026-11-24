@@ -22,11 +22,35 @@ function loadDotEnvIfPresent(filePath: string): Record<string, string> {
   return out;
 }
 
+function loadTokenJsonDefaults(): Record<string, string> {
+  const cfgPath = path.join(process.cwd(), "config", "token.json");
+  if (!fs.existsSync(cfgPath)) return {};
+  try {
+    const raw = JSON.parse(fs.readFileSync(cfgPath, "utf-8")) as Record<string, unknown>;
+    if (raw.state === "LIVE" && typeof raw.ca === "string" && raw.ca.startsWith("0x")) {
+      const out: Record<string, string> = {
+        TOKEN_LAUNCH_STATE: "LIVE",
+        ELENCHI_TOKEN_ADDRESS: raw.ca,
+        ELENCHI_PONS_TRADING_URL: `https://ponsfamily.com/launchpad/${raw.ca}`,
+      };
+      if (typeof raw.launchTx === "string") out.ELENCHI_TOKEN_LAUNCH_TX = raw.launchTx;
+      if (typeof raw.ponsFactory === "string") out.ELENCHI_PONS_FACTORY = raw.ponsFactory;
+      if (typeof raw.ponsVersion === "string") out.ELENCHI_PONS_VERSION = raw.ponsVersion;
+      return out;
+    }
+  } catch {
+    // ignore malformed config/token.json
+  }
+  return {};
+}
+
 const dotEnv = {
   ...loadDotEnvIfPresent(path.join(process.cwd(), ".env")),
   ...loadDotEnvIfPresent(path.join(process.cwd(), ".env.local")),
 };
-const env = resolveEnv({ ...dotEnv, ...process.env });
+function currentEnv() {
+  return resolveEnv({ ...loadTokenJsonDefaults(), ...dotEnv, ...process.env });
+}
 
 const dataDir = path.join(process.cwd(), ".data");
 fs.mkdirSync(dataDir, { recursive: true });
@@ -117,7 +141,7 @@ const server = http.createServer(async (req, res) => {
             : bodyBuf,
       });
 
-      const apiRes = await handleApiRequest(fetchReq, env, store);
+      const apiRes = await handleApiRequest(fetchReq, currentEnv(), store);
 
       res.statusCode = apiRes.status;
       for (const [k, v] of Object.entries(SECURITY_HEADERS)) {

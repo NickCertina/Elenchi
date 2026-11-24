@@ -1,9 +1,11 @@
-# Token Economics & Fee Separation (`$ELENCHI`)
+# Token Economics & Fee Separation (`$ELCHI`)
 
-## 1. Authoritative Prelaunch Status
+## 1. Official Contract Status (`LIVE`)
 
-- **Current State:** `TOKEN_LAUNCH_STATE = PRELAUNCH` (`ELENCHI_TOKEN_ADDRESS = null`).
-- **Launch Mechanism:** `$ELENCHI` will be launched manually by the project owner via the official Pons website (`https://ponsfamily.com/`) on Robinhood Chain Mainnet (`4663`).
+- **Current State:** `TOKEN_LAUNCH_STATE = LIVE`
+- **Official Contract (`chainId = 4663`):** `0xc71B4409512EF7fE4F714d79cEdEB38cbe485286`
+- **Pons Launchpad:** `https://ponsfamily.com/launchpad/0xc71B4409512EF7fE4F714d79cEdEB38cbe485286`
+- **Launch Mechanism:** `$ELCHI` was launched manually by the project owner via the official Pons website (`https://ponsfamily.com/`) on Robinhood Chain Mainnet (`4663`) and verified on-chain.
 - **Prohibited Actions:** Elenchi never deploys an ERC-20 token, mints tokens, creates liquidity pools, or automates launchpad transactions.
 
 ## 2. Pons Documentation Nuance & Fee Separation
@@ -23,7 +25,7 @@ Elenchi strictly separates six distinct fee/cost categories:
 
 | Tier | Initial Concept Threshold | Current Status |
 |---|---|---|
-| **Free Sandbox** | `0 $ELENCHI` (no wallet required) | `ACTIVE` |
-| **Operator** | `250,000 $ELENCHI` (0.025% of 1B) | `COMING_SOON` |
-| **Red-Cell** | `1,000,000 $ELENCHI` (0.10% of 1B) | `COMING_SOON` |
-| **Sentinel API** | `5,000,000 $ELENCHI` (0.50% of 1B) | `COMING_SOON` |
+| **Free Sandbox** | `0 $ELCHI` (no wallet required) | `ACTIVE` |
+| **Operator** | `250,000 $ELCHI` (0.025% of 1B) | `COMING_SOON` |
+| **Red-Cell** | `1,000,000 $ELCHI` (0.10% of 1B) | `COMING_SOON` |
+| **Sentinel API** | `5,000,000 $ELCHI` (0.50% of 1B) | `COMING_SOON` |

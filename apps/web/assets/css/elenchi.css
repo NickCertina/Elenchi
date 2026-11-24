@@ -359,6 +359,34 @@ code {
   border-color: var(--electric-blue);
 }
 
+.btn-pons {
+  background: rgba(8, 41, 185, 0.78);
+  color: var(--pure-white);
+  border-color: var(--electric-blue);
+  box-shadow: 0 0 28px rgba(39, 140, 255, 0.24);
+}
+
+.btn-pons::before {
+  background: var(--electric-blue);
+}
+
+.btn-pons:hover:not(:disabled) {
+  color: var(--pure-white);
+  border-color: var(--ice-blue);
+}
+
+.btn-pons.is-prelaunch {
+  background: rgba(8, 41, 185, 0.22);
+  color: var(--ice-blue);
+  border-color: rgba(39, 140, 255, 0.45);
+  box-shadow: none;
+}
+
+.btn-pons.is-prelaunch:hover:not(:disabled) {
+  color: var(--pure-white);
+  border-color: var(--electric-blue);
+}
+
 .btn-sm {
   padding: 9px 14px;
   font-size: 13px;
@@ -599,11 +627,63 @@ code {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 28px;
+  gap: 18px 24px;
+}
+
+.hero-ca-bar {
+  margin-top: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  max-width: 840px;
+  padding: 13px 18px;
+  border: 1px solid var(--hairline-strong);
+  border-left: 2px solid var(--electric-blue);
+  background: rgba(6, 19, 60, 0.34);
+  backdrop-filter: blur(8px);
+}
+
+.hero-ca-bar.is-live {
+  border-color: rgba(39, 140, 255, 0.44);
+  border-left: 2px solid var(--electric-blue);
+  background: linear-gradient(90deg, rgba(8, 41, 185, 0.34), rgba(6, 19, 60, 0.2));
+}
+
+.hero-ca-info {
+  min-width: 0;
+  flex: 1 1 280px;
+}
+
+.hero-ca-k {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ice-blue);
+}
+
+.hero-ca-v {
+  display: block;
+  margin-top: 5px;
+  font-size: 13px;
+  color: var(--off-white);
+  word-break: break-all;
+}
+
+.hero-ca-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
 }
 
 .hero-meta {
-  margin-top: 88px;
+  margin-top: 48px;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   border-top: 1px solid var(--hairline);

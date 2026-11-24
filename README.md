@@ -21,13 +21,15 @@
   &nbsp;·&nbsp;
   <a href="./docs/threat-model.md"><b>Threat Model</b></a>
   &nbsp;·&nbsp;
-  <a href="https://x.com/Elenchi_dev"><b>@Elenchi_dev</b></a>
+  <a href="https://github.com/NickCertina/Elenchi"><b>GitHub</b></a>
+  &nbsp;·&nbsp;
+  <a href="https://x.com/Elenchi_rbh"><b>@Elenchi_rbh</b></a>
 </p>
 
 <p>
   <img src="https://img.shields.io/badge/Robinhood%20Chain-4663-278CFF?style=for-the-badge&labelColor=050505" alt="Robinhood Chain 4663" />
   <img src="https://img.shields.io/badge/Assurance-EIP--712%20Evidence-9CCFFF?style=for-the-badge&labelColor=050505" alt="EIP-712 Evidence" />
-  <img src="https://img.shields.io/badge/Tests-30%20Passing-3DD68C?style=for-the-badge&labelColor=050505" alt="30 tests passing" />
+  <img src="https://img.shields.io/badge/Tests-33%20Passing-3DD68C?style=for-the-badge&labelColor=050505" alt="33 tests passing" />
   <br />
   <img src="https://img.shields.io/badge/Node-%E2%89%A5%2022.6-7F93B8?style=for-the-badge&labelColor=050505" alt="Node 22.6+" />
   <img src="https://img.shields.io/badge/Solidity-0.8.28-7F93B8?style=for-the-badge&labelColor=050505" alt="Solidity 0.8.28" />
@@ -37,7 +39,7 @@
 </div>
 
 ---
-## $ELCHI 0xc71b4409512ef7fe4f714d79cedeb38cbe485286
+
 ## Overview
 
 Autonomous trading agents now parse external token metadata, READMEs, market narratives, and volatility alerts before signing swaps. When untrusted data embeds adversarial instructions, **the data itself becomes the attack**.
@@ -125,7 +127,7 @@ Full architectural invariants are documented in [`docs/architecture.md`](./docs/
 | [`contracts/`](./contracts) | `ElenchiArena.sol` | Evidence-only EIP-712 attestation registry on Robinhood Chain (`Solidity 0.8.28`, zero swap/custody functions). |
 | [`scripts/`](./scripts) | CLI & Tooling | `connect-agent.ts` (outbound self-connect CLI), `example-agent.ts` (HMAC webhook bot), `build-site.ts`, `bind-pons-token.ts`. |
 | [`examples/`](./examples) | Runnable Demos | Standalone offline TypeScript scripts demonstrating policy evaluation, EIP-712 signing, and self-connect matches. |
-| [`tests/`](./tests) | Verification Suite | `30` Vitest unit, Cancun EVM contract (`solc` + `@ethereumjs/vm`), custom fighter, self-connect, and API E2E tests. |
+| [`tests/`](./tests) | Verification Suite | `33` Vitest unit, Cancun EVM contract (`solc` + `@ethereumjs/vm`), custom fighter, self-connect, token release, and API E2E tests. |
 
 ---
 
@@ -134,12 +136,12 @@ Full architectural invariants are documented in [`docs/architecture.md`](./docs/
 Requires **Node.js `>= 22.6`** (uses native `node:sqlite` — no external database setup needed):
 
 ```bash
-git clone https://github.com/AdrianVoss/Elenchi.git
+git clone https://github.com/NickCertina/Elenchi.git
 cd Elenchi
 
 npm install
 
-# 1. Strict TypeScript check + all 30 unit, Cancun EVM contract & E2E tests
+# 1. Strict TypeScript check + all 33 unit, Cancun EVM contract & E2E tests
 npm run typecheck
 npm test
 
@@ -282,22 +284,22 @@ const next = await fetch(session.decideUrl, {
 
 ---
 
-## `$ELENCHI` Access Tiers & Prelaunch Status
+## `$ELCHI` Access Tiers & Token Info
 
 <p align="center">
-  <img src="./assets/tiers.png" alt="$ELENCHI access tiers: Free Sandbox, Operator, Red-Cell, Sentinel API" width="100%" />
+  <img src="./assets/tiers.png" alt="$ELCHI access tiers: Free Sandbox, Operator, Red-Cell, Sentinel API" width="100%" />
 </p>
 
-- **Current Repository State:** `TOKEN_LAUNCH_STATE = PRELAUNCH` (`ELENCHI_TOKEN_ADDRESS = null`).
-- **Manual Launch Only:** This repository **never** deploys or mints an ERC-20 token. `$ELENCHI` is launched manually by the project owner via [Pons](https://ponsfamily.com/) on Robinhood Chain (`chainId: 4663`) and bound post-launch with on-chain bytecode and receipt verification via `npm run bind:token`.
+- **Official Contract (Robinhood Chain · `4663`):** [`0xc71B4409512EF7fE4F714d79cEdEB38cbe485286`](https://robinhoodchain.blockscout.com/token/0xc71B4409512EF7fE4F714d79cEdEB38cbe485286) · [Buy on Pons](https://ponsfamily.com/launchpad/0xc71B4409512EF7fE4F714d79cEdEB38cbe485286)
+- **Manual Launch Provenance:** This repository **never** deploys or mints an ERC-20 token. `$ELCHI` was launched manually by the project owner via [Pons](https://ponsfamily.com/) on Robinhood Chain (`chainId: 4663`) and verified on-chain via `npm run bind:token`.
 - **Hold-to-Unlock Concept:** The Free Sandbox requires **no wallet and no token**. Higher campaign and CI/CD tiers are designed around simple wallet balance checks — no staking contracts, no token lockups, and no burn claims.
 
 | Tier | Planned Threshold | Supply Share | Status | Capabilities |
 | --- | ---: | ---: | --- | --- |
-| **00 · Free Sandbox** | `0 $ELENCHI` | `0%` | **`ACTIVE`** | Browser Arena, all 5 synthetic classes, BYOA room pairing, `/skill.md`, EIP-712 evidence export |
-| **01 · Operator** | `250,000 $ELENCHI` | `0.025%` | `POST-LAUNCH` | Extended multi-round stress runs, saved webhook profiles, prompt diff history |
-| **02 · Red-Cell** | `1,000,000 $ELENCHI` | `0.10%` | `POST-LAUNCH` | Full 5-channel gauntlet campaigns, automated patch & retest loop, priority inference quota |
-| **03 · Sentinel API** | `5,000,000 $ELENCHI` | `0.50%` | `POST-LAUNCH` | Headless CI/CD pre-deploy gate, batch `/skill.md` suites, dedicated rate-limit allocation |
+| **00 · Free Sandbox** | `0 $ELCHI` | `0%` | **`ACTIVE`** | Browser Arena, all 5 synthetic classes, BYOA room pairing, `/skill.md`, EIP-712 evidence export |
+| **01 · Operator** | `250,000 $ELCHI` | `0.025%` | `POST-LAUNCH` | Extended multi-round stress runs, saved webhook profiles, prompt diff history |
+| **02 · Red-Cell** | `1,000,000 $ELCHI` | `0.10%` | `POST-LAUNCH` | Full 5-channel gauntlet campaigns, automated patch & retest loop, priority inference quota |
+| **03 · Sentinel API** | `5,000,000 $ELCHI` | `0.50%` | `POST-LAUNCH` | Headless CI/CD pre-deploy gate, batch `/skill.md` suites, dedicated rate-limit allocation |
 
 Full fee separation and Pons verification rules live in [`docs/token-economics.md`](./docs/token-economics.md) and [`docs/pons-launch-checklist.md`](./docs/pons-launch-checklist.md).
 
@@ -328,7 +330,9 @@ See [`SECURITY.md`](./SECURITY.md) for vulnerability disclosure guidelines and [
   <br />
   <a href="https://elenchi.dev">elenchi.dev</a>
   &nbsp;·&nbsp;
-  <a href="https://x.com/Elenchi_dev">@Elenchi_dev</a>
+  <a href="https://github.com/NickCertina/Elenchi">NickCertina/Elenchi</a>
+  &nbsp;·&nbsp;
+  <a href="https://x.com/Elenchi_rbh">@Elenchi_rbh</a>
   &nbsp;·&nbsp;
   Released under the <a href="./LICENSE">MIT License</a>
 </p>

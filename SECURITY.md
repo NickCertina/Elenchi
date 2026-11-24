@@ -18,4 +18,4 @@ Elenchi is an independent, non-custodial adversarial evaluation platform for AI 
 
 ## Reporting a Vulnerability
 
-Please **do not** open a public GitHub issue for exploitable vulnerabilities in `ElenchiArena.sol`, EIP-712 signature verification, or SSRF/session boundaries. Reach out via DM on [@Elenchi_dev](https://x.com/Elenchi_dev) to request a private disclosure channel.
+Please **do not** open a public GitHub issue for exploitable vulnerabilities in `ElenchiArena.sol`, EIP-712 signature verification, or SSRF/session boundaries. Reach out via DM on [@Elenchi_rbh](https://x.com/Elenchi_rbh) to request a private disclosure channel.

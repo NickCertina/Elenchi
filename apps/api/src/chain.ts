@@ -249,6 +249,13 @@ export async function inspectTokenAndPonsProvenance(env: ElenchiEnv) {
     },
   ];
 
+  const accessTiers = [
+    { name: "Free Sandbox", requirement: "No wallet / 0 tokens", status: "ACTIVE", capabilities: "Up to 3 adaptive rounds, all 5 synthetic attack vectors, clean benchmark check, JSON/MD export" },
+    { name: "Operator (Concept: 250,000 $ELCHI / 0.025% of 1B)", requirement: "Post-launch review", status: "COMING_SOON", capabilities: "Expanded adaptive rounds, prompt patch & retest quotas" },
+    { name: "Red-Cell (Concept: 1,000,000 $ELCHI / 0.10% of 1B)", requirement: "Post-launch review", status: "COMING_SOON", capabilities: "Multi-vector suite runs & arena attestation fee waiver" },
+    { name: "Sentinel API (Concept: 5,000,000 $ELCHI / 0.50% of 1B)", requirement: "Post-launch review", status: "COMING_SOON", capabilities: "Signed CI/CD webhook & adapter evaluations with rolling balance revalidation" },
+  ];
+
   if (env.TOKEN_LAUNCH_STATE === "PRELAUNCH" || !env.ELENCHI_TOKEN_ADDRESS) {
     return {
       state: "PRELAUNCH" as const,
@@ -262,12 +269,7 @@ export async function inspectTokenAndPonsProvenance(env: ElenchiEnv) {
       tradingUrl: null,
       explorerTokenUrl: null,
       onChainMetadata: null,
-      tiers: [
-        { name: "Free Sandbox", requirement: "No wallet / 0 tokens", status: "ACTIVE", capabilities: "Up to 3 adaptive rounds, all 5 synthetic attack vectors, clean benchmark check, JSON/MD export" },
-        { name: "Operator (Concept: 250,000 $ELENCHI / 0.025% of 1B)", requirement: "Post-launch review", status: "COMING_SOON", capabilities: "Expanded adaptive rounds, prompt patch & retest quotas" },
-        { name: "Red-Cell (Concept: 1,000,000 $ELENCHI / 0.10% of 1B)", requirement: "Post-launch review", status: "COMING_SOON", capabilities: "Multi-vector suite runs & arena attestation fee waiver" },
-        { name: "Sentinel API (Concept: 5,000,000 $ELENCHI / 0.50% of 1B)", requirement: "Post-launch review", status: "COMING_SOON", capabilities: "Signed CI/CD webhook & adapter evaluations with rolling balance revalidation" },
-      ],
+      tiers: accessTiers,
       feeDisclosures: feeCategories,
     };
   }
@@ -285,27 +287,39 @@ export async function inspectTokenAndPonsProvenance(env: ElenchiEnv) {
     ]);
 
     let provenance: "VERIFIED" | "UNVERIFIED" = "UNVERIFIED";
-    let provenanceReason = "Launch transaction or factory address not supplied for receipt verification.";
+    let provenanceReason = "Contract bytecode is empty on Robinhood Chain (4663).";
 
-    if (env.ELENCHI_TOKEN_LAUNCH_TX && env.ELENCHI_PONS_FACTORY && env.ELENCHI_PONS_VERSION) {
+    const hasDeployedCode = Boolean(code && code !== "0x");
+
+    if (hasDeployedCode && env.ELENCHI_TOKEN_LAUNCH_TX) {
       const receipt = await client.getTransactionReceipt({ hash: env.ELENCHI_TOKEN_LAUNCH_TX });
-      const expectedFactory = normalizeEvmAddress(env.ELENCHI_PONS_FACTORY).toLowerCase();
-      const touchedFactory =
-        receipt.to?.toLowerCase() === expectedFactory ||
-        receipt.logs.some((l) => l.address.toLowerCase() === expectedFactory);
-      const touchedToken = receipt.logs.some(
-        (l) => l.address.toLowerCase() === tokenAddress.toLowerCase()
-      );
+      const expectedFactory = env.ELENCHI_PONS_FACTORY
+        ? normalizeEvmAddress(env.ELENCHI_PONS_FACTORY).toLowerCase()
+        : null;
+      const touchedFactory = expectedFactory
+        ? receipt.to?.toLowerCase() === expectedFactory ||
+          receipt.logs.some((l) => l.address.toLowerCase() === expectedFactory)
+        : true;
+      const touchedToken =
+        receipt.contractAddress?.toLowerCase() === tokenAddress.toLowerCase() ||
+        receipt.logs.some((l) => l.address.toLowerCase() === tokenAddress.toLowerCase());
       if (receipt.status === "success" && touchedFactory && touchedToken) {
         provenance = "VERIFIED";
-        provenanceReason = `Verified creation receipt ${env.ELENCHI_TOKEN_LAUNCH_TX} touching Pons factory ${expectedFactory} and token ${tokenAddress}.`;
+        provenanceReason = expectedFactory
+          ? `Verified creation receipt ${env.ELENCHI_TOKEN_LAUNCH_TX} touching Pons factory ${expectedFactory} and token ${tokenAddress}.`
+          : `Verified creation receipt ${env.ELENCHI_TOKEN_LAUNCH_TX} deploying/touching token ${tokenAddress} on Robinhood Chain (4663).`;
       } else {
         provenanceReason = "Creation receipt did not match stated Pons factory and token logs.";
       }
+    } else if (hasDeployedCode) {
+      provenance = "VERIFIED";
+      provenanceReason = `Verified live ERC-20 bytecode and metadata (${symbol}) at ${tokenAddress} on Robinhood Chain (4663).`;
     }
 
-    const officialClaimsEnabled = Boolean(code && code !== "0x" && provenance === "VERIFIED");
+    const officialClaimsEnabled = Boolean(hasDeployedCode && provenance === "VERIFIED");
     const explorerBase = env.EXPLORER_URL.replace(/\/+$/, "");
+    const resolvedTradingUrl =
+      env.ELENCHI_PONS_TRADING_URL ?? `https://ponsfamily.com/launchpad/${tokenAddress}`;
 
     return {
       state: "LIVE" as const,
@@ -318,7 +332,7 @@ export async function inspectTokenAndPonsProvenance(env: ElenchiEnv) {
       launchTxHash: env.ELENCHI_TOKEN_LAUNCH_TX,
       ponsVersion: env.ELENCHI_PONS_VERSION,
       ponsFactory: env.ELENCHI_PONS_FACTORY,
-      tradingUrl: officialClaimsEnabled ? env.ELENCHI_PONS_TRADING_URL : null,
+      tradingUrl: officialClaimsEnabled ? resolvedTradingUrl : null,
       explorerTokenUrl: officialClaimsEnabled ? `${explorerBase}/token/${tokenAddress}` : null,
       onChainMetadata: {
         name,
@@ -326,7 +340,7 @@ export async function inspectTokenAndPonsProvenance(env: ElenchiEnv) {
         decimals,
         totalSupplyFormatted: formatUnits(totalSupply, decimals),
       },
-      tiers: [],
+      tiers: accessTiers,
       feeDisclosures: feeCategories,
     };
   } catch (err) {

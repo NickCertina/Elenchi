@@ -15,7 +15,7 @@ interface VmDeploy {
 /**
  * @title DeployElenchiArena
  * @notice Foundry deployment script for Robinhood Chain Testnet (46630) and Mainnet (4663).
- *         NOTE: Never deploys an ERC-20 token. $ELENCHI is launched manually on Pons by the owner.
+ *         NOTE: Never deploys an ERC-20 token. $ELCHI is launched manually on Pons by the owner.
  */
 contract DeployElenchiArena {
     VmDeploy internal constant vm = VmDeploy(address(uint160(uint256(keccak256("hevm cheat code")))));

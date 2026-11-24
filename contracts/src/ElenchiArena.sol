@@ -215,7 +215,7 @@ contract ElenchiArena {
     address public pendingOwner;
     bool public paused;
 
-    // Optional one-time binding to the owner's manually Pons-launched $ELENCHI ERC-20 token
+    // Optional one-time binding to the owner's manually Pons-launched $ELCHI ERC-20 token
     address public elenchiToken;
     bytes32 public elenchiTokenLaunchTx;
     bool public tokenBound;
@@ -444,7 +444,7 @@ contract ElenchiArena {
     // ─────────────────────────────────────────────────────────────────────────────
 
     /**
-     * @notice One-time binding of the externally Pons-launched $ELENCHI ERC-20 contract.
+     * @notice One-time binding of the externally Pons-launched $ELCHI ERC-20 contract.
      *         Irreversible once set; cannot mint, upgrade, or modify the token.
      */
     function bindElenchiTokenOnce(address token, bytes32 launchTxHash) external onlyOwner {

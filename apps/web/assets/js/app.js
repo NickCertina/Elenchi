@@ -1365,15 +1365,32 @@
   function initCopyButtons() {
     document.querySelectorAll("[data-copy-ca]").forEach((btn) => {
       btn.addEventListener("click", () => {
-        const ca = window.ELENCHI_CONFIG && window.ELENCHI_CONFIG.CA;
+        const cfg = window.ELENCHI_CONFIG || {};
+        const ca = btn.getAttribute("data-ca") || cfg.CA || cfg.contract;
         if (!ca) return;
-        navigator.clipboard.writeText(ca).then(() => {
-          const orig = btn.textContent;
+        const orig = btn.textContent;
+        const done = () => {
           btn.textContent = "Copied";
           setTimeout(() => {
             btn.textContent = orig;
           }, 1400);
-        });
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(ca).then(done).catch(() => {});
+        } else {
+          const ta = document.createElement("textarea");
+          ta.value = ca;
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          try {
+            document.execCommand("copy");
+            done();
+          } finally {
+            document.body.removeChild(ta);
+          }
+        }
       });
     });
   }
