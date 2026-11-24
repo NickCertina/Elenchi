@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@elenchi/shared": ["./packages/shared/src/index.ts"],
+      "@elenchi/policy-evaluator": ["./packages/policy-evaluator/src/index.ts"],
+      "@elenchi/eip712": ["./packages/eip712/src/index.ts"],
+      "@elenchi/agent-runner": ["./packages/agent-runner/src/index.ts"],
+      "@elenchi/api": ["./apps/api/src/index.ts"]
+    }
+  },
+  "include": [
+    "packages/**/*.ts",
+    "apps/**/*.ts",
+    "scripts/**/*.ts",
+    "examples/**/*.ts",
+    "tests/**/*.ts"
+  ],
+  "exclude": ["node_modules", "site", "out", "github"]
+}

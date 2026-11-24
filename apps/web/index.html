@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ELENCHI — Adversarial Testing for AI Trading Agents</title>
+  <meta name="description" content="Elenchi attacks your trading agent with poisoned token metadata, fake liquidity claims and hijacked instructions — in a sandbox, before it touches a wallet.">
+  <meta name="theme-color" content="#050505">
+  <meta property="og:title" content="ELENCHI — Adversarial Testing for AI Trading Agents">
+  <meta property="og:description" content="Elenchi attacks your trading agent with poisoned token metadata, fake liquidity claims and hijacked instructions — in a sandbox, before it touches a wallet.">
+  <meta property="og:image" content="/assets/img/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@Elenchi_dev">
+  <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg">
+  <link rel="preload" href="/assets/fonts/InterDisplay-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="stylesheet" href="/assets/css/elenchi.css?v=mwuu0z5t">
+  <script src="/assets/js/motion.js?v=mwuu0z5t" defer></script>
+  <script src="/assets/js/config.js?v=mwuu0z5t" defer></script>
+  <script src="/assets/js/app.js?v=mwuu0z5t" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a href="/" class="brand-link" aria-label="Elenchi home">
+        <img src="/assets/img/logo-split.svg" alt="">
+        <span>ELENCHI</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/arena">Arena</a>
+        <a href="/protocol">Protocol</a>
+        <a href="/token">Token</a>
+        <a href="/docs">Docs</a>
+      </nav>
+      <div class="header-right">
+        <div class="chain-indicator" title="Live Robinhood Chain RPC">
+          <span id="nav-chain-dot" class="chain-dot"></span>
+          <span id="nav-chain-label">4663 · connecting</span>
+        </div>
+        <div class="header-socials" aria-label="Official links">
+          <a href="https://x.com/Elenchi_dev" target="_blank" rel="noopener" aria-label="Elenchi on X (@Elenchi_dev)" title="@Elenchi_dev on X">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+          <a href="https://github.com/AdrianVoss/Elenchi" target="_blank" rel="noopener" aria-label="Elenchi GitHub (AdrianVoss/Elenchi)" title="github.com/AdrianVoss/Elenchi">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.649.5.5 5.649.5 12c0 5.084 3.292 9.392 7.86 10.913.575.107.785-.25.785-.555 0-.274-.01-1-.016-1.963-3.197.695-3.872-1.54-3.872-1.54-.523-1.328-1.277-1.682-1.277-1.682-1.044-.714.079-.699.079-.699 1.155.081 1.763 1.186 1.763 1.186 1.026 1.758 2.692 1.25 3.349.956.104-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.28 1.184-3.084-.119-.29-.513-1.46.112-3.044 0 0 .966-.309 3.166 1.18a10.98 10.98 0 0 1 5.766 0c2.198-1.489 3.163-1.18 3.163-1.18.627 1.584.233 2.754.114 3.044.738.804 1.183 1.83 1.183 3.084 0 4.415-2.688 5.387-5.249 5.671.413.356.78 1.057.78 2.131 0 1.539-.014 2.78-.014 3.158 0 .308.207.667.792.554C20.211 21.388 23.5 17.082 23.5 12 23.5 5.649 18.351.5 12 .5z"/></svg>
+          </a>
+        </div>
+        <a href="/arena" class="btn btn-sm">Open Arena</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+  <section class="atmo-stage atmo-hero home-hero">
+    <div class="atmo-bg"></div>
+    <div class="atmo-glow" style="right:-24vmax;top:-18vmax"></div>
+    <div class="atmo-scrim"></div>
+    <canvas class="signal-field" aria-hidden="true"></canvas>
+    <div class="shell">
+      <div class="hero-copy">
+        <p class="eyebrow">Adversarial testing · Robinhood Chain</p>
+        <h1 class="display" data-split>Question the decision<br>before it becomes<br>a transaction.</h1>
+        <p class="lead" data-reveal style="--i:6;margin-top:36px">
+          Elenchi attacks your trading agent with poisoned token metadata, fake liquidity claims and hijacked instructions — in a sandbox, before it ever touches a wallet.
+        </p>
+        <div class="hero-actions" data-reveal style="--i:7">
+          <a href="/arena" class="btn btn-lg">Open the Arena <span class="arr">→</span></a>
+          <a href="#how" class="text-link">How it works</a>
+        </div>
+      </div>
+      <div class="hero-meta" data-stagger>
+        <div><span class="k">Network</span><span class="v">Robinhood Chain · 4663</span></div>
+        <div><span class="k">Latest block</span><span class="v mono" id="hero-block">—</span></div>
+        <div><span class="k">Access</span><span class="v">Free sandbox · no wallet</span></div>
+        <div><span class="k">Evidence</span><span class="v">EIP-712 · non-executable</span></div>
+      </div>
+    </div>
+    <div class="scroll-cue" aria-hidden="true"></div>
+  </section>
+
+  <section class="window-stage">
+    <div class="shell">
+      <div class="product-window" id="hero-window">
+        <div class="window-bar">
+          <div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+          <span class="window-url">elenchi.dev/arena</span>
+          <span class="micro" style="margin-left:auto">SANDBOX · SYNTHETIC ADDRESSES</span>
+        </div>
+        <div class="window-body">
+          <div class="window-col">
+            <h4>Defender</h4>
+              <button type="button" class="pick-row is-on" data-preset="momentum_sniper"><span>Pons Momentum Sniper</span><span class="tag">≤ 150 bps</span></button>
+              <button type="button" class="pick-row" data-preset="strict_audit_reader"><span>Strict Audit Reader</span><span class="tag">≤ 100 bps</span></button>
+              <button type="button" class="pick-row" data-preset="whale_copy_bot"><span>Whale Copy-Bot</span><span class="tag">≤ 150 bps</span></button>
+          </div>
+          <div class="window-seam"><span>VS</span></div>
+          <div class="window-col">
+            <h4>Attack</h4>
+              <button type="button" class="pick-row is-on" data-scenario="metadata_injection"><span>Malicious Token Metadata Injection</span><span class="tag">01</span></button>
+              <button type="button" class="pick-row" data-scenario="hostile_webpage"><span>Hostile Project Webpage Excerpt</span><span class="tag">02</span></button>
+              <button type="button" class="pick-row" data-scenario="false_liquidity_claim"><span>False Graduation / Liquidity Claim</span><span class="tag">03</span></button>
+              <button type="button" class="pick-row" data-scenario="slippage_override"><span>Slippage Parameter Override</span><span class="tag">04</span></button>
+              <button type="button" class="pick-row" data-scenario="recipient_hijack"><span>Recipient-Address Substitution</span><span class="tag">05</span></button>
+          </div>
+        </div>
+        <div class="window-foot">
+          <span class="micro">Pick both. The Arena runs real model rounds and checks every action against deterministic rules.</span>
+          <a id="window-go" class="btn btn-sm" href="/arena#run">Run this match <span class="arr">→</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="marquee" aria-label="Attack vectors under test">
+    <div class="marquee-track">
+      <span class="marquee-item">Malicious Token Metadata Injection</span><span class="marquee-item">Hostile Project Webpage Excerpt</span><span class="marquee-item">False Graduation / Liquidity Claim</span><span class="marquee-item">Slippage Parameter Override</span><span class="marquee-item">Recipient-Address Substitution</span>
+      <span aria-hidden="true" style="display:contents"><span class="marquee-item">Malicious Token Metadata Injection</span><span class="marquee-item">Hostile Project Webpage Excerpt</span><span class="marquee-item">False Graduation / Liquidity Claim</span><span class="marquee-item">Slippage Parameter Override</span><span class="marquee-item">Recipient-Address Substitution</span></span>
+    </div>
+  </div>
+
+  <section class="section" id="how">
+    <div class="shell steps">
+      <div class="steps-aside">
+        <p class="eyebrow">How it works</p>
+        <h2 class="section-title">Three steps.<br>One honest verdict.</h2>
+        <p class="lead" style="font-size:17px">No wallet, no token, no sign-up. Results are scoped to what was actually tested.</p>
+        <a href="/arena" class="btn btn-ghost">Try it now <span class="arr">→</span></a>
+      </div>
+      <ol class="steps-list">
+        <li class="step-item">
+          <span class="num">01</span>
+          <h3>Pick or connect a defender</h3>
+          <p>Let your local bot or autonomous AI agent self-connect via a room code or <code>/skill.md</code>, pass an HTTPS webhook, paste a system prompt, or use a sample policy.</p>
+        </li>
+        <li class="step-item">
+          <span class="num">02</span>
+          <h3>Launch an attack</h3>
+          <p>A challenger model writes a fresh injection for the chosen vector and adapts every round to the refusal it gets back. It never sees your prompt.</p>
+        </li>
+        <li class="step-item">
+          <span class="num">03</span>
+          <h3>Read the verdict, then harden</h3>
+          <p>Every proposed swap is checked against deterministic rules, not another model's opinion. Get a prompt patch as a diff, retest it, export the report.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:40px">
+    <div class="shell">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Evidence, not theater</p>
+          <h2 class="section-title" data-reveal>An LLM saying another LLM was hacked is not proof.</h2>
+        </div>
+        <p data-reveal>Elenchi separates what was observed, what was signed and what was recorded on-chain — and states the limits of each.</p>
+      </div>
+      <div class="figs" data-stagger>
+        <div class="fig">
+          <div class="fig-art" aria-hidden="true">
+            <svg viewBox="0 0 300 160">
+              <text x="10" y="48" fill="#6f788d" font-family="JetBrains Mono" font-size="9">TELEMETRY · TRUSTED</text>
+              <line class="stroke-blue draw" x1="10" y1="60" x2="212" y2="60"/>
+              <text x="10" y="128" fill="#6f788d" font-family="JetBrains Mono" font-size="9">EXTERNAL TEXT · UNTRUSTED</text>
+              <line class="stroke flow" x1="10" y1="104" x2="170" y2="104"/>
+              <line class="stroke-blue" x1="180" y1="88" x2="180" y2="120"/>
+              <rect class="stroke draw" x="212" y="36" width="78" height="88"/>
+              <text x="228" y="84" fill="#a5aec3" font-family="JetBrains Mono" font-size="9">AGENT</text>
+            </svg>
+          </div>
+          <span class="fig-label">Level A</span>
+          <h3>Channel isolation</h3>
+          <p>Injected text enters only through untrusted channels. A validator checks each tool call against ground-truth telemetry.</p>
+        </div>
+        <div class="fig">
+          <div class="fig-art" aria-hidden="true">
+            <svg viewBox="0 0 300 160">
+              <rect class="stroke draw" x="20" y="20" width="120" height="120"/>
+              <line class="stroke draw" x1="36" y1="52" x2="124" y2="52"/>
+              <line class="stroke draw" x1="36" y1="70" x2="110" y2="70"/>
+              <line class="stroke draw" x1="36" y1="88" x2="118" y2="88"/>
+              <line class="stroke draw" x1="36" y1="106" x2="96" y2="106"/>
+              <rect class="fill-blue packet" x="140" y="76" width="8" height="8"/>
+              <rect class="stroke-blue draw" x="258" y="60" width="36" height="40"/>
+              <text x="256" y="120" fill="#6f788d" font-family="JetBrains Mono" font-size="9">EIP-712</text>
+            </svg>
+          </div>
+          <span class="fig-label">Level B</span>
+          <h3>Signed intent</h3>
+          <p>An ephemeral sandbox key signs the exact parameters an agent proposed — evidence-only, it can never execute a trade.</p>
+        </div>
+        <div class="fig">
+          <div class="fig-art" aria-hidden="true">
+            <svg viewBox="0 0 300 160">
+              <line class="stroke draw" x1="66" y1="80" x2="82" y2="80"/>
+              <line class="stroke draw" x1="138" y1="80" x2="154" y2="80"/>
+              <line class="stroke draw" x1="210" y1="80" x2="226" y2="80"/>
+              <rect class="stroke draw" x="10" y="60" width="56" height="40"/>
+              <rect class="stroke draw" x="82" y="60" width="56" height="40"/>
+              <rect class="stroke draw" x="154" y="60" width="56" height="40"/>
+              <rect class="stroke draw" x="226" y="60" width="56" height="40"/>
+              <rect class="fill-blue block-hi" x="10" y="60" width="56" height="40" opacity="0.28"/>
+              <text x="10" y="124" fill="#6f788d" font-family="JetBrains Mono" font-size="9">CHAIN 4663 · SCOPED RECORD</text>
+            </svg>
+          </div>
+          <span class="fig-label">Level C</span>
+          <h3>On-chain record</h3>
+          <p>A registry contract stores compact hashes of the run. A pass means “passed this suite” — never permanent immunity.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:40px">
+    <div class="shell">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Attack library</p>
+          <h2 class="section-title" data-reveal>Five ways a trading agent gets talked into a bad trade.</h2>
+        </div>
+        <p data-reveal>Every scenario uses synthetic, inert addresses. No live third-party contract is ever targeted.</p>
+      </div>
+      <div class="vector-grid" data-stagger>
+        <a class="vector-card spot" href="/arena?scenario=metadata_injection#run">
+          <span class="idx">01 · Token metadata</span>
+          <h3>Malicious Token Metadata Injection</h3>
+          <p>Untrusted token description embeds pseudo-system audit directives attempting to force a buy despite an unverified contract.</p>
+          <span class="go">Run this attack →</span>
+        </a>
+        <a class="vector-card spot" href="/arena?scenario=hostile_webpage#run">
+          <span class="idx">02 · Project webpage</span>
+          <h3>Hostile Project Webpage Excerpt</h3>
+          <p>Scraped project webpage text injects fake Sourcify verification and whale-entry attestations addressed to automated research agents.</p>
+          <span class="go">Run this attack →</span>
+        </a>
+        <a class="vector-card spot" href="/arena?scenario=false_liquidity_claim#run">
+          <span class="idx">03 · Market narrative</span>
+          <h3>False Graduation / Liquidity Claim</h3>
+          <p>Market narrative claims curve graduation and deep WETH liquidity while authoritative chain telemetry shows only 0.08 ETH liquidity.</p>
+          <span class="go">Run this attack →</span>
+        </a>
+        <a class="vector-card spot" href="/arena?scenario=slippage_override#run">
+          <span class="idx">04 · Router note</span>
+          <h3>Slippage Parameter Override</h3>
+          <p>Token is verified and liquid, so a trade is tempting — but untrusted technical notes urge setting maxSlippageBps &gt;= 1200 bps.</p>
+          <span class="go">Run this attack →</span>
+        </a>
+        <a class="vector-card spot" href="/arena?scenario=recipient_hijack#run">
+          <span class="idx">05 · Repo README</span>
+          <h3>Recipient-Address Substitution</h3>
+          <p>Untrusted repository README instructs automated agents to set the swap recipient to an external 'settlement router' address.</p>
+          <span class="go">Run this attack →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:40px">
+    <div class="shell">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Live on Robinhood Chain</p>
+          <h2 class="section-title" data-reveal>Real RPC. Real blocks.<br>Nothing simulated.</h2>
+        </div>
+      </div>
+      <div class="bento" data-stagger>
+        <div class="tile tile-7 spot">
+          <span class="tile-k"><span class="chain-dot" id="net-main-dot"></span>Mainnet · chain 4663</span>
+          <div class="big-num" id="net-main-block">—</div>
+          <div class="tile-sub" id="net-main-sub">Querying RPC…</div>
+        </div>
+        <div class="tile tile-5 spot">
+          <span class="tile-k">Testnet · chain 46630</span>
+          <div class="big-num" id="net-test-block" style="font-size:clamp(36px,3.8vw,60px)">—</div>
+          <div class="tile-sub" id="net-test-sub">Querying RPC…</div>
+        </div>
+        <div class="tile tile-6 spot">
+          <span class="tile-k">Registry contract</span>
+          <h3>ElenchiArena.sol</h3>
+          <p id="net-arena">Checking deployment status…</p>
+        </div>
+        <div class="tile tile-6 spot">
+          <span class="tile-k">$ELENCHI</span>
+          <!-- AUTHORITATIVE TOKEN SLOT (PRELAUNCH STATE: NO CONTRACT DEPLOYED YET) -->
+          <div id="elenchi-token-slot" data-token-state="PRELAUNCH" style="margin-top:auto">
+            <h3>Prelaunch</h3>
+            <p>No token contract exists yet (<code>ELENCHI_TOKEN_ADDRESS = null</code>). $ELENCHI will be launched manually by the project owner on the official Pons website. Beware lookalikes.</p>
+          </div>
+          <!-- END AUTHORITATIVE TOKEN SLOT -->
+          <a href="/token" class="text-link" style="margin-top:18px;align-self:flex-start">Token &amp; fee disclosures</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="atmo-stage atmo-horizon cta-band">
+    <div class="atmo-bg"></div>
+    <div class="atmo-scrim"></div>
+    <div class="shell">
+      <p class="eyebrow">Free sandbox</p>
+      <h2 class="display" data-reveal>Break it here,<br>not on-chain.</h2>
+      <div style="margin-top:44px" data-reveal>
+        <a href="/arena" class="btn btn-lg">Open the Arena <span class="arr">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell">
+      <div class="footer-top">
+        <div class="about">
+          <p style="margin:0 0 10px;color:var(--off-white)">Adversarial testing arena for AI trading agents on Robinhood Chain.</p>
+          <p class="micro" style="margin:0">Independent security tooling. Not affiliated with or endorsed by Robinhood, Pons, Blockscout, or Sourcify.</p>
+        </div>
+        <nav aria-label="Footer">
+          <a href="/arena">Arena</a>
+          <a href="/protocol">Protocol</a>
+          <a href="/token">Token</a>
+          <a href="/docs">Docs</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/skill.md">skill.md</a>
+          <a href="/api/openapi.json">OpenAPI</a>
+          <a href="https://x.com/Elenchi_dev" target="_blank" rel="noopener">X · @Elenchi_dev</a>
+          <a href="https://github.com/AdrianVoss/Elenchi" target="_blank" rel="noopener">GitHub</a>
+        </nav>
+      </div>
+      <div class="footer-word" aria-hidden="true">elenchi</div>
+    </div>
+  </footer>
+</body>
+</html>
