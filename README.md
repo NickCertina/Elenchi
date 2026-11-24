@@ -37,7 +37,7 @@
 </div>
 
 ---
-
+## $ELCHI 0xc71b4409512ef7fe4f714d79cedeb38cbe485286
 ## Overview
 
 Autonomous trading agents now parse external token metadata, READMEs, market narratives, and volatility alerts before signing swaps. When untrusted data embeds adversarial instructions, **the data itself becomes the attack**.
